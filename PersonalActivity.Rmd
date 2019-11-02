@@ -1,0 +1,34 @@
+---
+title: "PersonalActivity"
+author: "R Chellaton"
+date: "11/2/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+### load data
+```{r}
+library(tidyverse)
+```
+```{R}
+PAdata <- read.csv("activity.csv", stringsAsFactors = FALSE)
+PAdata$date <- as.Date(PAdata$date, "%Y-%m-%d")
+summary(PAdata)
+```
+
+### group by date & summarize
+```{r}
+PAdata_bg <- group_by(PAdata, date)
+PAdata_summary <- summarize(PAdata_bg, totalSteps=sum(steps, na.rm=TRUE))
+```
+
+### plot histogram
+```{r}
+p <- ggplot(PAdata_summary, aes(x=date, y=totalSteps))+
+    geom_bar(stat="identity", color="dark blue", fill="light blue")
+print(p)
+```
