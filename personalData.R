@@ -10,4 +10,7 @@ PAdata_bg <- group_by(PAdata, date)
 PAdata_summary <- summarize(PAdata_bg, totalSteps=sum(steps, na.rm=TRUE))
 #
 # plot histogram
-hist(PAdata_summary$date)
+
+p <- ggplot(PAdata_summary, aes(x=date, y=totalSteps))+
+    geom_bar(stat="identity", color="dark blue", fill="light blue")
+print(p)
