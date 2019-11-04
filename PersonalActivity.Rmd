@@ -21,14 +21,26 @@ summary(PAdata)
 ```
 
 ### group by date & summarize
-```{r}
+```{r Group by and Summarize}
 PAdata_bg <- group_by(PAdata, date)
 PAdata_summary <- summarize(PAdata_bg, totalSteps=sum(steps, na.rm=TRUE))
 ```
 
 ### plot histogram
-```{r}
+```{r Plot Histogram}
 p <- ggplot(PAdata_summary, aes(x=date, y=totalSteps))+
     geom_bar(stat="identity", color="dark blue", fill="light blue")
 print(p)
+```
+
+### Summarize data grouped by date to get mean and median
+```{r Summarize for Means and Medians}
+s1 <- summarize(PAdata_bg, mean(steps, na.rm=TRUE), median(steps, na.rm=TRUE))
+names(s1) <- c("date", "means", "medians")
+print(s1)
+```
+### Plot time series of averages
+```{r Plot time series of averages}
+p2 <- ggplot(s1, aes(x=date, y=means, na.rm=TRUE )) + geom_bar(stat="identity", color="dark blue", fill="steelblue4")
+print(p2)
 ```
