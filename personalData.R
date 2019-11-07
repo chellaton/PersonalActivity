@@ -1,5 +1,6 @@
 # load tidyverse library
 library(tidyverse)
+library(gridExtra)
 # read csv file & convert date string to date
 #
 PAdata <- read.csv("activity.csv", stringsAsFactors = FALSE)
@@ -33,14 +34,18 @@ print(mean(s2$interval))
 # use bound parameter to limit to positive numbers for steps
 library(Amelia)
 amelia.fit <- amelia(PAdata, m=5, bound=matrix(c(1,0,500), nrow=1))
-PAdata_impute <- amelia.fit$imputations[[5]]
+PAdata_impute <- amelia.fit$imputations[[1]]
 # Histogram of total steps each day after imputing missing data
 PAdata_impute_gb <- group_by(PAdata_impute, date)
 PAdata_impute_summ <- summarize(PAdata_impute_gb, totalSteps=sum(steps))
-str(PAdata_impute_summ)
-p <- ggplot(PAdata_impute_summ, aes(x=date, y=totalSteps)) +
-  geom_bar(stat="identity", color="dark green", fill="green3")
-print(p)
-# Panel plot comparing average number of steps over weekdays vs weekends
 
+p_impute <- ggplot(PAdata_impute_summ, aes(x=date, y=totalSteps)) +
+  geom_bar(stat="identity", color="dark green", fill="green3")
+print(p_impute)
+#
+# Panel plot comparing average number of steps over weekdays vs weekends
+#
+# load library gridExtra
+library(gridExtra)
+grid.arrange(p, p_impute, ncol=2)
 # All of R code in the report
