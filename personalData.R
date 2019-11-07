@@ -52,11 +52,11 @@ PAdata_int <- PAdata %>% mutate(Weekday=ifelse(weekdays(date)=="Saturday" |
 PAdata_int <- PAdata_int %>% group_by(interval, Weekday)
 PAdata_int_summary <- PAdata_int %>% summarize(AvgSteps=mean(steps, na.rm=TRUE))
 wkdayPlot <- ggplot(filter(PAdata_int_summary,Weekday==1),aes(x=interval, y=AvgSteps))+
-  geom_line(col="dark blue") + ylab("Average Steps on Weekdays")+geom_smooth(method="auto")
+  geom_line(col="dark blue") + ylab("Avg Steps on Weekdays")+geom_smooth(method="auto")
 wkendPlot <- ggplot(filter(PAdata_int_summary,Weekday==0),aes(x=interval, y=AvgSteps))+
-  geom_line(col="dark blue") + ylab("Average Steps on Weekends")+geom_smooth(method="auto")
+  geom_line(col="dark red") + ylab("Avg Steps on Weekends")+geom_smooth(method="auto")
 
 # load library gridExtra
 library(gridExtra)
-grid.arrange(wkdayPlot, wkendPlot, ncol=2)
+grid.arrange(wkdayPlot, wkendPlot, nrow=2)
 # All of R code in the report
