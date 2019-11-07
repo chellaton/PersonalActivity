@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(tidyverse)
 ```
-```{R}
+```{r read CSV datafiles & convert date strings to dates }
 PAdata <- read.csv("activity.csv", stringsAsFactors = FALSE)
 PAdata$date <- as.Date(PAdata$date, "%Y-%m-%d")
 summary(PAdata)
@@ -62,5 +62,20 @@ PAdata_impute_aggr <- summarize(PAdata_impute_gb, totalSteps=sum(steps))
 p <- ggplot(PAdata_impute_aggr, aes(x=date, y=totalSteps)) + 
   geom_bar(stat="identity", fill="green3", color="dark green")
 print(p)
+```
+
+### Panel Graph for weekday and weekend average steps by Interval
+```{r}
+library(gridExtra)
+PAdata_int <- PAdata %>% mutate(Weekday=ifelse(weekdays(date)=="Saturday" |
+                                                 weekdays(date)=="Sunday",0,1))
+PAdata_summ <- PAdata_int %>% 
+  group_by(interval, Weekday) %>% 
+  summarize(AverageSteps=mean(steps, na.rm=TRUE))
+wkdayPlot <- ggplot(filter(PAdata_summ,Weekday==1),aes(x=interval, y=AverageSteps))+
+                      geom_line(col="dark blue")+ylab("Weekday Average Steps")
+wkendPlot <- ggplot(filter(PAdata_summ,Weekday==0),aes(x=interval, y=AverageSteps))+
+                      geom_line(col="dark red")+ylab("Weekend Average Steps")
+grid.arrange(wkdayPlot, wkendPlot, nrow=2)
 ```
 
