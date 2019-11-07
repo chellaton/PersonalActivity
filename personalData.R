@@ -27,3 +27,20 @@ print(p2)
 s2 <- aggregate(steps ~ date, PAdata_bg, max)
 s2 <- merge(s2, PAdata_bg)
 print(mean(s2$interval))
+
+# impute missing data 
+# add library(Amelia)
+# use bound parameter to limit to positive numbers for steps
+library(Amelia)
+amelia.fit <- amelia(PAdata, m=5, bound=matrix(c(1,0,500), nrow=1))
+PAdata_impute <- amelia.fit$imputations[[5]]
+# Histogram of total steps each day after imputing missing data
+PAdata_impute_gb <- group_by(PAdata_impute, date)
+PAdata_impute_summ <- summarize(PAdata_impute_gb, totalSteps=sum(steps))
+str(PAdata_impute_summ)
+p <- ggplot(PAdata_impute_summ, aes(x=date, y=totalSteps)) +
+  geom_bar(stat="identity", color="dark green", fill="green3")
+print(p)
+# Panel plot comparing average number of steps over weekdays vs weekends
+
+# All of R code in the report
