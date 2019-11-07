@@ -51,3 +51,16 @@ s2 <- aggregate(steps ~ date, PAdata_bg, max)
 s2 <- merge(s2, PAdata_bg)
 print(mean(s2$interval))
 ```
+
+### impute for NA values
+```{r}
+library(Amelia)
+amelia.fit <- amelia(PAdata, m=5, bound=matrix(c(1,0,200), nrow=1))
+PAdata_impute <- amelia.fit$imputations[[5]]
+PAdata_impute_gb <- PAdata_impute %>% group_by(date)
+PAdata_impute_aggr <- summarize(PAdata_impute_gb, totalSteps=sum(steps))
+p <- ggplot(PAdata_impute_aggr, aes(x=date, y=totalSteps)) + 
+  geom_bar(stat="identity", fill="green3", color="dark green")
+print(p)
+```
+
