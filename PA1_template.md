@@ -5,14 +5,14 @@ R Markdown
 
     library(tidyverse)
 
-    ## ── Attaching packages ────────────────────── tidyverse 1.2.1 ──
+    ## ── Attaching packages ─────────────────
 
     ## ✔ ggplot2 3.2.1     ✔ purrr   0.3.2
     ## ✔ tibble  2.1.3     ✔ dplyr   0.8.3
     ## ✔ tidyr   1.0.0     ✔ stringr 1.4.0
     ## ✔ readr   1.3.1     ✔ forcats 0.4.0
 
-    ## ── Conflicts ───────────────────────── tidyverse_conflicts() ──
+    ## ── Conflicts ──────────────────────────
     ## ✖ dplyr::filter() masks stats::filter()
     ## ✖ dplyr::lag()    masks stats::lag()
 
@@ -93,28 +93,7 @@ R Markdown
     ## ## Refer to http://gking.harvard.edu/amelia/ for more information
     ## ##
 
-    amelia.fit <- amelia(PAdata, m=5, bound=matrix(c(1,0,200), nrow=1))
-
-    ## -- Imputation 1 --
-    ## 
-    ##   1  2
-    ## 
-    ## -- Imputation 2 --
-    ## 
-    ##   1  2
-    ## 
-    ## -- Imputation 3 --
-    ## 
-    ##   1  2
-    ## 
-    ## -- Imputation 4 --
-    ## 
-    ##   1  2
-    ## 
-    ## -- Imputation 5 --
-    ## 
-    ##   1  2
-
+    amelia.fit <- amelia(PAdata, m=5, bound=matrix(c(1,0,200), nrow=1), p2s=0)
     PAdata_impute <- amelia.fit$imputations[[5]]
     PAdata_impute_gb <- PAdata_impute %>% group_by(date)
     PAdata_impute_aggr <- summarize(PAdata_impute_gb, totalSteps=sum(steps))
