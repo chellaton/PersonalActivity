@@ -1,6 +1,7 @@
-# load tidyverse library
+# load tidyverse, gridExtra, and missForest library
 library(tidyverse)
 library(gridExtra)
+library(Amelia)
 # read csv file & convert date string to date
 #
 PAdata <- read.csv("activity.csv", stringsAsFactors = FALSE)
@@ -32,11 +33,20 @@ print(mean(s2$interval))
 # impute missing data 
 # add library(Amelia)
 # use bound parameter to limit to positive numbers for steps
-library(Amelia)
-amelia.fit <- amelia(PAdata, m=5, bound=matrix(c(1,0,500), nrow=1))
-PAdata_impute <- amelia.fit$imputations[[1]]
+amelia.imp <- amelia(PAdata, m=5, p2s=0, bounds=matrix(c(1,0,800),nrow=1))
+PA_imputed <- cbind(amelia.imp$imputations[[1]]$steps,
+                amelia.imp$imputations[[2]]$steps,
+                amelia.imp$imputations[[3]]$steps,
+                amelia.imp$imputations[[4]]$steps,
+                amelia.imp$imputations[[5]]$steps)
+PA_imputed <- as.data.frame(PA_imputed)
+names(PA_imputed) <- c("s1","s2","s3","s4","s5")
+PA_imputed <- PA_imputed %>% mutate (steps=(s1+s2+s3+s4+s5)/5) %>% select(steps)
+PA_imputed <- cbind(PA_imputed$steps, PAdata[,2:3])
+names(PA_imputed)[1] <- "steps"
+
 # Histogram of total steps each day after imputing missing data
-PAdata_impute_gb <- group_by(PAdata_impute, date)
+PAdata_impute_gb <- group_by(PA_imputed, date)
 PAdata_impute_summ <- summarize(PAdata_impute_gb, totalSteps=sum(steps))
 
 p_impute <- ggplot(PAdata_impute_summ, aes(x=date, y=totalSteps)) +
@@ -52,9 +62,9 @@ PAdata_int <- PAdata %>% mutate(Weekday=ifelse(weekdays(date)=="Saturday" |
 PAdata_int <- PAdata_int %>% group_by(interval, Weekday)
 PAdata_int_summary <- PAdata_int %>% summarize(AvgSteps=mean(steps, na.rm=TRUE))
 wkdayPlot <- ggplot(filter(PAdata_int_summary,Weekday==1),aes(x=interval, y=AvgSteps))+
-  geom_line(col="dark blue") + ylab("Avg Steps on Weekdays")+geom_smooth(method="auto")
+  geom_line(col="dark blue") + ylab("Avg Steps on Weekdays")
 wkendPlot <- ggplot(filter(PAdata_int_summary,Weekday==0),aes(x=interval, y=AvgSteps))+
-  geom_line(col="dark red") + ylab("Avg Steps on Weekends")+geom_smooth(method="auto")
+  geom_line(col="dark red") + ylab("Avg Steps on Weekends")
 
 # load library gridExtra
 library(gridExtra)
