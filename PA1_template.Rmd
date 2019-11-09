@@ -13,7 +13,6 @@ knitr::opts_chunk$set(echo = TRUE)
 ### load data
 ```{r}
 library(tidyverse)
-library(Amelia)
 library(dplyr)
 ```
 ```{r read CSV datafiles & convert date strings to dates }
@@ -55,23 +54,38 @@ print(mean(s2$interval))
 ```
 
 ### impute for NA values
-```{r}
-PAdata.imp <- amelia(PAdata, m=5, p2S=0, bounds=matrix(c(1,0,800),nrow=1))
-PA_imputed <- cbind(PAdata.imp$imputations[[1]]$steps,
-                PAdata.imp$imputations[[2]]$steps,
-                PAdata.imp$imputations[[3]]$steps,
-                PAdata.imp$imputations[[4]]$steps,
-                PAdata.imp$imputations[[5]]$steps)
-names(PA_imputed) <- c("s1","s2","s3","s4","s5")
-PA_imputed <- PA_imputed %>% mutate(steps=(s1+s2+s3+s4+s5)/5) %>% select (steps)
-PA_imputed <- cbind(PA_imputed$steps, PAdata[,2:3])
-names(PA_imputed)[1] <- "steps"
+``` {r handling NA values - find number of NAs}
+totalNA <- sum(complete.cases(PAdata))
+print(totalNA)
+```
 
-PAdata_impute_gb <- PA_imputed %>% group_by(date)
-PAdata_impute_aggr <- summarize(PAdata_impute_gb, totalSteps=sum(steps))
-p <- ggplot(PAdata_impute_aggr, aes(x=date, y=totalSteps)) + 
-  geom_bar(stat="identity", fill="green3", color="dark green")
-print(p)
+``` {r strategy to substitute NA values}
+averageSteps <- aggregate(steps ~ interval, PAdata, FUN=mean)
+newSet <- numeric()
+for (i in 1:nrow(PAdata)) {
+  if(is.na(PAdata[i,]$steps)) {
+    steps <- subset(averageSteps, interval == PAdata[i,]$interval)$steps
+  }
+  else
+  {
+    steps <- PAdata[i,]$steps
+  }
+  newSet <- c(newSet, steps)
+}
+```
+
+``` {r create new dataset with NAs substituted}
+PAdata_new <- PAdata
+PAdata_new$steps <- newSet
+```
+
+```{r plot after removing NAs}
+# Histogram of total steps each day after imputing missing data
+PAdata_new_summ <- PAdata_new %>% group_by(date) %>% summarize(sum=sum(steps))
+PAdata_newplot <- ggplot(PAdata_new_summ, aes(x=date, y=sum)) + 
+  geom_bar(stat="identity",color="dark blue", fill="steelblue") + 
+  ylab("totalSteps by day - no NAs")
+print(PAdata_newplot)
 ```
 
 ### Panel Graph for weekday and weekend average steps by Interval

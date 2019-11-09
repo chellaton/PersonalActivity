@@ -32,31 +32,37 @@ print(mean(s2$interval))
 
 # impute missing data 
 # add library(Amelia)
-# use bound parameter to limit to positive numbers for steps
-amelia.imp <- amelia(PAdata, m=5, p2s=0, bounds=matrix(c(1,0,800),nrow=1))
-PA_imputed <- cbind(amelia.imp$imputations[[1]]$steps,
-                amelia.imp$imputations[[2]]$steps,
-                amelia.imp$imputations[[3]]$steps,
-                amelia.imp$imputations[[4]]$steps,
-                amelia.imp$imputations[[5]]$steps)
-PA_imputed <- as.data.frame(PA_imputed)
-names(PA_imputed) <- c("s1","s2","s3","s4","s5")
-PA_imputed <- PA_imputed %>% mutate (steps=(s1+s2+s3+s4+s5)/5) %>% select(steps)
-PA_imputed <- cbind(PA_imputed$steps, PAdata[,2:3])
-names(PA_imputed)[1] <- "steps"
+totalNA <- sum(complete.cases(PAdata))
+print(totalNA)
+
+# set average number of steps by interval where value was NA
+averageSteps <- aggregate(steps ~ interval, PAdata, FUN=mean)
+newSet <- numeric()
+for (i in 1:nrow(PAdata)) {
+  if(is.na(PAdata[i,]$steps)) {
+    steps <- subset(averageSteps, interval == PAdata[i,]$interval)$steps
+  }
+  else
+  {
+    steps <- PAdata[i,]$steps
+  }
+  newSet <- c(newSet, steps)
+}
+# create new dataframe with NA values substituted
+PAdata_new <- PAdata
+PAdata_new$steps <- newSet
 
 # Histogram of total steps each day after imputing missing data
-PAdata_impute_gb <- group_by(PA_imputed, date)
-PAdata_impute_summ <- summarize(PAdata_impute_gb, totalSteps=sum(steps))
-
-p_impute <- ggplot(PAdata_impute_summ, aes(x=date, y=totalSteps)) +
-  geom_bar(stat="identity", color="dark green", fill="green3")
-print(p_impute)
+PAdata_new_summ <- PAdata_new %>% group_by(date) %>% summarize(sum=sum(steps))
+PAdata_newplot <- ggplot(PAdata_new_summ, aes(x=date, y=sum)) + 
+  geom_bar(stat="identity",color="dark blue", fill="steelblue") + 
+  ylab("totalSteps by day - no NAs")
+print(PAdata_newplot)
 #
 # Panel plot comparing average number of steps by interval over weekdays vs weekends
 # x axis: intervals
 # y axis: average number of steps
-#
+
 PAdata_int <- PAdata %>% mutate(Weekday=ifelse(weekdays(date)=="Saturday" |
                                                  weekdays(date)=="Sunday",0,1))
 PAdata_int <- PAdata_int %>% group_by(interval, Weekday)
