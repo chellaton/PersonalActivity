@@ -1,7 +1,7 @@
 # load tidyverse, gridExtra, and missForest library
 library(tidyverse)
 library(gridExtra)
-library(Amelia)
+
 # read csv file & convert date string to date
 #
 PAdata <- read.csv("activity.csv", stringsAsFactors = FALSE)
@@ -28,12 +28,13 @@ print(p2)
 # the 5-minute interval, on an average, with the maximum number of steps
 s2 <- aggregate(steps ~ date, PAdata_bg, max)
 s2 <- merge(s2, PAdata_bg)
-print(mean(s2$interval))
+print(paste("interval with max number of steps on average:", 
+            round(mean(s2$interval),0)))
 
 # impute missing data 
 # add library(Amelia)
 totalNA <- sum(complete.cases(PAdata))
-print(totalNA)
+print(paste("Number of rows with NA values:", totalNA))
 
 # set average number of steps by interval where value was NA
 averageSteps <- aggregate(steps ~ interval, PAdata, FUN=mean)
