@@ -5,16 +5,16 @@ R Markdown
 
     library(tidyverse)
 
-    ## ── Attaching packages ─────────────────
+    ## -- Attaching packages -------------------------------------------------------------------------- tidyverse 1.2.1 --
 
-    ## ✔ ggplot2 3.2.1     ✔ purrr   0.3.2
-    ## ✔ tibble  2.1.3     ✔ dplyr   0.8.3
-    ## ✔ tidyr   1.0.0     ✔ stringr 1.4.0
-    ## ✔ readr   1.3.1     ✔ forcats 0.4.0
+    ## v ggplot2 3.2.1     v purrr   0.3.2
+    ## v tibble  2.1.3     v dplyr   0.8.3
+    ## v tidyr   1.0.0     v stringr 1.4.0
+    ## v readr   1.3.1     v forcats 0.4.0
 
-    ## ── Conflicts ──────────────────────────
-    ## ✖ dplyr::filter() masks stats::filter()
-    ## ✖ dplyr::lag()    masks stats::lag()
+    ## -- Conflicts ----------------------------------------------------------------------------- tidyverse_conflicts() --
+    ## x dplyr::filter() masks stats::filter()
+    ## x dplyr::lag()    masks stats::lag()
 
     PAdata <- read.csv("activity.csv", stringsAsFactors = FALSE)
     PAdata$date <- as.Date(PAdata$date, "%Y-%m-%d")
@@ -61,7 +61,7 @@ R Markdown
     ##  8 2012-10-08 NaN          NA
     ##  9 2012-10-09  44.5         0
     ## 10 2012-10-10  34.4         0
-    ## # … with 51 more rows
+    ## # ... with 51 more rows
 
 ### Plot time series of averages
 
