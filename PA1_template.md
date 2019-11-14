@@ -16,6 +16,8 @@ R Markdown
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
+    library(dplyr)
+
     PAdata <- read.csv("activity.csv", stringsAsFactors = FALSE)
     PAdata$date <- as.Date(PAdata$date, "%Y-%m-%d")
     summary(PAdata)
@@ -82,26 +84,35 @@ R Markdown
 
 ### impute for NA values
 
-    library(Amelia)
+    totalNA <- sum(complete.cases(PAdata))
+    print(totalNA)
 
-    ## Loading required package: Rcpp
+    ## [1] 15264
 
-    ## ## 
-    ## ## Amelia II: Multiple Imputation
-    ## ## (Version 1.7.5, built: 2018-05-07)
-    ## ## Copyright (C) 2005-2019 James Honaker, Gary King and Matthew Blackwell
-    ## ## Refer to http://gking.harvard.edu/amelia/ for more information
-    ## ##
+    averageSteps <- aggregate(steps ~ interval, PAdata, FUN=mean)
+    newSet <- numeric()
+    for (i in 1:nrow(PAdata)) {
+      if(is.na(PAdata[i,]$steps)) {
+        steps <- subset(averageSteps, interval == PAdata[i,]$interval)$steps
+      }
+      else
+      {
+        steps <- PAdata[i,]$steps
+      }
+      newSet <- c(newSet, steps)
+    }
 
-    amelia.fit <- amelia(PAdata, m=5, bound=matrix(c(1,0,200), nrow=1), p2s=0)
-    PAdata_impute <- amelia.fit$imputations[[5]]
-    PAdata_impute_gb <- PAdata_impute %>% group_by(date)
-    PAdata_impute_aggr <- summarize(PAdata_impute_gb, totalSteps=sum(steps))
-    p <- ggplot(PAdata_impute_aggr, aes(x=date, y=totalSteps)) + 
-      geom_bar(stat="identity", fill="green3", color="dark green")
-    print(p)
+    PAdata_new <- PAdata
+    PAdata_new$steps <- newSet
 
-![](PA1_template_files/figure-markdown_strict/unnamed-chunk-2-1.png)
+    # Histogram of total steps each day after imputing missing data
+    PAdata_new_summ <- PAdata_new %>% group_by(date) %>% summarize(sum=sum(steps))
+    PAdata_newplot <- ggplot(PAdata_new_summ, aes(x=date, y=sum)) + 
+      geom_bar(stat="identity",color="dark blue", fill="steelblue") + 
+      ylab("totalSteps by day - no NAs")
+    print(PAdata_newplot)
+
+![](PA1_template_files/figure-markdown_strict/plot%20after%20removing%20NAs-1.png)
 
 ### Panel Graph for weekday and weekend average steps by Interval
 
@@ -125,4 +136,4 @@ R Markdown
                           geom_line(col="dark red")+ylab("Weekend Average Steps")
     grid.arrange(wkdayPlot, wkendPlot, nrow=2)
 
-![](PA1_template_files/figure-markdown_strict/unnamed-chunk-3-1.png)
+![](PA1_template_files/figure-markdown_strict/unnamed-chunk-2-1.png)
