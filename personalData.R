@@ -33,8 +33,20 @@ print(mean(s2$interval))
 # add library(Amelia)
 # use bound parameter to limit to positive numbers for steps
 library(Amelia)
-amelia.fit <- amelia(PAdata, m=5, bound=matrix(c(1,0,500), nrow=1))
-PAdata_impute <- amelia.fit$imputations[[1]]
+m <- 5
+amelia.out <- amelia(PAdata, m=m, bound=matrix(c(1,0,500), nrow=1), p2s=0)
+#
+# use mi.meld to combine output from amelia
+b.out <- NULL     # coefficients
+se.out <- NULL    # standard error dataframe
+for (i in 1:m){
+  ols.out <- lm(steps ~ interval, data=amelia.out$imputations[[i]])
+  b.out <- rbind(b.out, ols.out$coef)
+  se.out <- rbind(se.out, coef(summary(ols.out))[,2])
+}
+
+PAdata_impute <- mi.meld(q=b.out, se=se.out)
+
 # Histogram of total steps each day after imputing missing data
 PAdata_impute_gb <- group_by(PAdata_impute, date)
 PAdata_impute_summ <- summarize(PAdata_impute_gb, totalSteps=sum(steps))
