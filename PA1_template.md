@@ -134,6 +134,7 @@ R Markdown
                           geom_line(col="dark blue")+ylab("Weekday Average Steps")
     wkendPlot <- ggplot(filter(PAdata_summ,Weekday==0),aes(x=interval, y=AverageSteps))+
                           geom_line(col="dark red")+ylab("Weekend Average Steps")
+
     grid.arrange(wkdayPlot, wkendPlot, nrow=2)
 
-![](PA1_template_files/figure-markdown_strict/unnamed-chunk-2-1.png)
+![](PA1_template_files/figure-markdown_strict/panel%20plot-1.png)

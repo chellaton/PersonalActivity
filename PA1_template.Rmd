@@ -100,6 +100,9 @@ wkdayPlot <- ggplot(filter(PAdata_summ,Weekday==1),aes(x=interval, y=AverageStep
                       geom_line(col="dark blue")+ylab("Weekday Average Steps")
 wkendPlot <- ggplot(filter(PAdata_summ,Weekday==0),aes(x=interval, y=AverageSteps))+
                       geom_line(col="dark red")+ylab("Weekend Average Steps")
+```
+
+``` {r panel plot}
 grid.arrange(wkdayPlot, wkendPlot, nrow=2)
 ```
 
